@@ -1,4 +1,4 @@
-# Extension Project Template
+# Isometric Camera
 
 Make and easily control an isometric camera in Omniverse! 
 
