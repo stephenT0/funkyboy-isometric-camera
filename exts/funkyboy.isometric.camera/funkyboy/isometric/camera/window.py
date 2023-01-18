@@ -74,11 +74,8 @@ class IsometricCameraWindow(ui.Window):
                 # with ui.HStack(height=0, spacing=SPACING):
                 #     ui.Label("Current camera: ", height=40, width=0)
                 #     ui.Label("Isometric Camera" if self.is_isometric else "Perspective Camera", id="current_camera")
-               
-
-
-
-                
+            
+             
                 #create a simple float value that can be bound to a UI
                 self._slider_model_x = ui.SimpleFloatModel()
                 self._slider_model_y = ui.SimpleFloatModel()

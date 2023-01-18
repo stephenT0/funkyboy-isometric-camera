@@ -2,13 +2,8 @@ import omni.ext
 import omni.kit.ui
 from .window import IsometricCameraWindow, WINDOW_TITLE
 
-
-
-
 class FunkyboyIsometricCameraExtension(omni.ext.IExt):
-    def on_startup(self, ext_id):
-        #print("[funkyboy.isometric.camera] funkyboy isometric camera startup")
-
+    def on_startup(self, ext_id): 
         self._menu_path = f"Window/{WINDOW_TITLE}"
         self._window = IsometricCameraWindow(WINDOW_TITLE, self._menu_path)
         self._menu = omni.kit.ui.get_editor_menu().add_item(self._menu_path, self._on_menu_click, True)
@@ -32,8 +27,3 @@ class FunkyboyIsometricCameraExtension(omni.ext.IExt):
                 self._window.hide()
 
 
-
-# fancy ui
-# docking 
-#toml
-#readme
