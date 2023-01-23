@@ -29,19 +29,30 @@ class IsometricCameraWindow(ui.Window):
 
     def _build_window(self):
         #Dock the Window
-        super().dock_in_window("Property", ui.DockPosition.SAME)
+        #super().dock_in_window("Property", ui.DockPosition.SAME)
         # Create a scrolling frame
         with ui.ScrollingFrame():
             # Create a vertical stack layout
             with ui.VStack(height=0):
                 # Define a function for creating a camera 
                 def on_create_camera():
-                    #calling on the CamerMaker function from .camera_maker
+                    #build  a new window
+                    self.frame.set_build_fn(self._build_window_camera_created)
+                    #check if camera exists
+                    camera_path = "/World/Isometric_Camera/Isometric_Camera"
+                    usd_context = omni.usd.get_context()
+                    stage = usd_context.get_stage()
+                    
+                    if stage.GetPrimAtPath(camera_path):
+                        print(f"A Camera already exists")
+                        self.camera_created = True
+                        return
+                    #calling on the CamerMaker function to Create a Camera
                     CameraMaker()
                     # Set the camera created flag to True
                     self.camera_created = True
                     # Set the build function to the one for when a camera has been created
-                    self.frame.set_build_fn(self._build_window_camera_created)
+                    
                     from omni.kit.viewport.utility import get_active_viewport
                     viewport = get_active_viewport()
                     viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
@@ -51,9 +62,7 @@ class IsometricCameraWindow(ui.Window):
                     ui.Label("Start Here: ", height=40, width=0)
                     # Create a button with the text "Create Camera" and call the on_create_camera function when clicked
                     ui.Button("Create Camera and Switch View", clicked_fn=on_create_camera)
-                    from omni.kit.viewport.utility import get_active_viewport
-                    viewport = get_active_viewport()
-                    viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
+
 
 
 
