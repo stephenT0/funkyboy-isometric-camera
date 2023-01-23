@@ -1,5 +1,5 @@
 # Changelog
 
 ## [1.0.0] - 2023-01-18
-- Initial version of Isometric CAmera
+- Initial version of Isometric Camera
 

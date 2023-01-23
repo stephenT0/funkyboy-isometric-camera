@@ -6,7 +6,7 @@ from .camera_maker import CameraMaker
 from omni.kit.widget.viewport import ViewportWidget
 from pxr import Gf, Sdf
 
-# this file controls all ui elements and
+# this file controls all ui elements and contains the slider models which are used to rotate the camera
 
 WINDOW_TITLE = "Isometric Camera"
 
@@ -15,9 +15,7 @@ SPACING = 4
 class IsometricCameraWindow(ui.Window):
     def __init__(self, title, menu_path):
         # call the super class init method and set the window's title and size
-        super().__init__(title, width=450, height=200)
-        # dock the extension besides the enviornments tab
-        super().dock_in_window("Environments", ui.DockPosition.SAME) 
+        super().__init__(title, width=350, height=250)
         # store the menu path passed as an argument
         self._menu_path = menu_path
         # set a function that will be called when the window's visibility changes
@@ -30,6 +28,8 @@ class IsometricCameraWindow(ui.Window):
         self.is_isometric = False
 
     def _build_window(self):
+        #Dock the Window
+        super().dock_in_window("Property", ui.DockPosition.SAME)
         # Create a scrolling frame
         with ui.ScrollingFrame():
             # Create a vertical stack layout
@@ -42,41 +42,46 @@ class IsometricCameraWindow(ui.Window):
                     self.camera_created = True
                     # Set the build function to the one for when a camera has been created
                     self.frame.set_build_fn(self._build_window_camera_created)
+                    from omni.kit.viewport.utility import get_active_viewport
+                    viewport = get_active_viewport()
+                    viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
                 # Create a horizontal stack layout
                 with ui.HStack(height=0, spacing=SPACING):
                     # Create a label "Start Here: "
                     ui.Label("Start Here: ", height=40, width=0)
                     # Create a button with the text "Create Camera" and call the on_create_camera function when clicked
-                    ui.Button("Create Camera", clicked_fn=on_create_camera)
-
-    def _build_window_camera_created(self):
-        with ui.ScrollingFrame():
-            with ui.VStack(height=0):
-                def on_switch_camera():
-                    # Get the active viewport
+                    ui.Button("Create Camera and Switch View", clicked_fn=on_create_camera)
                     from omni.kit.viewport.utility import get_active_viewport
                     viewport = get_active_viewport()
-                    # Check if there is no active viewport and raise an error if there isn't
-                    if not viewport:
-                        raise RuntimeError("No active Viewport")
-                    # make button switch to isometric camera
-                    if not self.is_isometric:
-                        viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
-                        self.is_isometric = True
-                    # make button switch to Omniverse default perspective view 
-                    else:
-                        viewport.camera_path = ('/OmniverseKit_Persp')
-                        self.is_isometric = False
-                # Create UI Buttons to switch perspective
+                    viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
+
+
+
+    def _build_window_camera_created(self):
+        #Function to switch to Isometric View
+        def isometric_switch():
+            from omni.kit.viewport.utility import get_active_viewport
+            viewport = get_active_viewport()
+            viewport.camera_path = ("/World/Isometric_Camera/Isometric_Camera")
+            self.is_isometric = True
+        #Function to switch to Perspective View
+        def perspective_switch():
+            # Get the active viewport
+            from omni.kit.viewport.utility import get_active_viewport
+            viewport = get_active_viewport()
+            viewport.camera_path = ('/OmniverseKit_Persp')
+            self.is_isometric = False
+        with ui.ScrollingFrame():
+            with ui.VStack(height=0):
                 with ui.HStack(height=0, spacing=SPACING):
-                    ui.Label("Camera Created: ", height=40, width=0)
-                    ui.Button("Switch Perspective", clicked_fn=on_switch_camera, label=self.get_button_label())
-                # with ui.HStack(height=0, spacing=SPACING):
-                #     ui.Label("Current camera: ", height=40, width=0)
-                #     ui.Label("Isometric Camera" if self.is_isometric else "Perspective Camera", id="current_camera")
-            
+                    ui.Label("View Switch 1", height=40, width=0)
+                    ui.Button("Switch to Perspective View", clicked_fn=perspective_switch)                    
+                with ui.HStack(height=0, spacing=SPACING):
+                    ui.Label("View Switch 2", height=40, width=0)
+                    ui.Button("Switch to Isometric View", clicked_fn=isometric_switch)
+     
              
-                #create a simple float value that can be bound to a UI
+                #create a model for each slider
                 self._slider_model_x = ui.SimpleFloatModel()
                 self._slider_model_y = ui.SimpleFloatModel()
                 self._slider_model_zoom = ui.SimpleFloatModel()
@@ -92,14 +97,13 @@ class IsometricCameraWindow(ui.Window):
 
                 ui.Spacer(width=0,height=0)
                 # Create Ui elements to control the camera
-                with ui.CollapsableFrame("Camera Controls", name="group", height=100,):
+                with ui.CollapsableFrame("Isometric Camera Controls", name="group", height=100,):
                     with ui.VStack(height=0, spacing=SPACING):
                         with ui.HStack():
                             ui.Spacer(width=5)
                             ui.Label(" Rotate Up-Down: ", height=0, width=0)
                             ui.FloatSlider(self._slider_model_x,  min=0, max=-90, step=0.5,
-                            style={
-                        "draw_mode": ui.SliderDrawMode.HANDLE,
+                            style={"draw_mode": ui.SliderDrawMode.HANDLE,
                         })   
 
                         # This function updates the rotation of the camera on the x-axis    
@@ -126,8 +130,8 @@ class IsometricCameraWindow(ui.Window):
                             self._slider_model_x.as_float = current_rotation_x
                             # Subscribe to the value changed function of self._slider_model_x and pass in the update_rotate_x function
                             self._slider_subscription_x = self._slider_model_x.subscribe_value_changed_fn(lambda m, p=self._source_prim_model, c=current_rotation_x: update_rotate_x(p, m.as_float, c))
-                        # UI Elements for rotate Y
                         
+                        # UI Elements for rotate Y
                         with ui.HStack():
                             ui.Spacer(width=10)
                             ui.Label("Rotate Side-to-Side", height=0, width=0)
@@ -191,9 +195,6 @@ class IsometricCameraWindow(ui.Window):
                 with ui.HStack(height=0, spacing=SPACING):
                     ui.Label("Reset Extension: ", height=0, width=0)
                     ui.Button("Reset (Camera will be deleted)", clicked_fn=on_reset)        
-
-    def get_button_label(self):
-        return "Switch to Perspective Camera" if self.is_isometric else "Switch to Isometric Camera"
 
     def _on_visibility_changed(self, visible):
         omni.kit.ui.get_editor_menu().set_value(self._menu_path, visible)

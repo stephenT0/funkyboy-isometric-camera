@@ -2,6 +2,8 @@ import omni.ext
 import omni.kit.ui
 from .window import IsometricCameraWindow, WINDOW_TITLE
 
+# very simple extension.py file that will launch the extension and add the extension to the "Window" Menu 
+
 class FunkyboyIsometricCameraExtension(omni.ext.IExt):
     def on_startup(self, ext_id): 
         self._menu_path = f"Window/{WINDOW_TITLE}"
