@@ -8,3 +8,6 @@
 
 ## [1.2.0] - 2023-01-23
 - Multiple Cameras can no longer be created
+
+## [1.3.0] - 2023-01-23
+- Updated metadata for proper release
